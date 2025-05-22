@@ -1,5 +1,4 @@
 ---
-
 - block:
     - name: check if sysmon archive is present
       win_stat:
@@ -26,6 +25,33 @@
       when: not sysmondl.stat.exists
 
 - block:
+    - name: Check if Sysmon service exists
+      win_service_info:
+        name: Sysmon64
+      register: sysmon_service
+
+    - name: Stop Sysmon service if present
+      win_service:
+        name: Sysmon64
+        state: stopped
+      when: sysmon_service.services | length > 0
+
+    - name: Uninstall Sysmon if present
+      win_command: "Sysmon64.exe -u"
+      args:
+        chdir: 'c:\Program Files\ansible\sysmon'
+      when: sysmon_service.services | length > 0
+
+    - name: Wait for Sysmon service removal
+      win_service_info:
+        name: Sysmon64
+      register: sysmon_service_after_uninstall
+      until: sysmon_service_after_uninstall.services | length == 0
+      retries: 3
+      delay: 5
+      when: sysmon_service.services | length > 0
+
+- block:
     - name: Copy Sysmon template
       win_copy:
         src: "SwiftOnSecurity.xml"
@@ -33,4 +59,3 @@
 
     - name: install sysmon with defined config
       win_command: '"C:\Program Files\ansible\sysmon\sysmon64.exe" -accepteula -i "C:\Program Files\ansible\SwiftOnSecurity.xml"'
-
