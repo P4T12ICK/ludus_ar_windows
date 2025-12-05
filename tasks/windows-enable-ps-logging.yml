@@ -18,3 +18,4 @@
 
 - name: restart machine
   win_reboot:
+  # win_reboot checks if reboot is pending, making this idempotent

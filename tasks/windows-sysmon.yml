@@ -51,5 +51,12 @@
         src: "SwiftOnSecurity.xml"
         dest: C:\Program Files\ansible\SwiftOnSecurity.xml
 
+    - name: Check if Sysmon is already installed
+      win_service_info:
+        name: sysmon64
+      register: sysmon_installed
+      changed_when: false
+
     - name: install sysmon with defined config
       win_command: '"C:\Program Files\ansible\sysmon\sysmon64.exe" -accepteula -i "C:\Program Files\ansible\SwiftOnSecurity.xml"'
+      when: sysmon_installed.services | length == 0

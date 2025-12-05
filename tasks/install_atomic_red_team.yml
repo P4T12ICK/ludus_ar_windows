@@ -19,15 +19,29 @@
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
   when: providers.stdout is not search("NuGet")
 
+- name: Set Internet Explorer first run customize
+  win_regedit:
+    path: "HKLM:\\SOFTWARE\\Microsoft\\Internet Explorer\\Main"
+    name: DisableFirstRunCustomize
+    type: dword
+    data: 2
+
+- name: Check if Atomic Red Team is installed
+  win_shell: |
+    $module = Get-Module -ListAvailable -Name invoke-atomicredteam
+    if ($module) { Write-Output "installed" } else { Write-Output "not_installed" }
+  register: art_check
+  changed_when: false
+
 - name: Install Atomic Red Team
   win_shell: |
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 2
-    Install-Module -Name powershell-yaml -Force
+    Install-Module -Name powershell-yaml -Force -SkipPublisherCheck
     IEX (IWR https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1)
     Install-AtomicRedTeam -Force
     IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicsfolder.ps1' -UseBasicParsing)
     Install-AtomicsFolder -Force -RepoOwner redcanaryco -Branch master
   register: install_art
+  when: art_check.stdout | default('not_installed') | string == 'not_installed'
 
 - name: copy default powershell profile
   win_copy:
