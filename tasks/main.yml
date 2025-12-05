@@ -12,7 +12,6 @@
     - "git"
     - "notepadplusplus"
     - "7zip"
-    - "adobereader"
     - "python"
 - include_tasks: install_splunk_uf.yml
 - include_tasks: configure_outputs.yml
