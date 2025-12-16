@@ -3,16 +3,16 @@
 - include_tasks: windows-disable-defender.yml
 - include_tasks: windows-enable-ps-logging.yml
 - include_tasks: windows-enable-4688-cmd-line-audit.yml
-- include_tasks: install_choco.yml
-  ignore_errors: true
-- include_tasks: install_app_chocolatey.yml
-  ignore_errors: true
-  with_items:
-    - "firefox"
-    - "git"
-    - "notepadplusplus"
-    - "7zip"
-    - "python"
+# - include_tasks: install_choco.yml
+#   ignore_errors: true
+# - include_tasks: install_app_chocolatey.yml
+#   ignore_errors: true
+#   with_items:
+#     - "firefox"
+#     - "git"
+#     - "notepadplusplus"
+#     - "7zip"
+#     - "python"
 - include_tasks: install_splunk_uf.yml
 - include_tasks: configure_outputs.yml
 - include_tasks: collect_powershell_logs.yml
