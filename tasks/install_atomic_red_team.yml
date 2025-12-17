@@ -26,6 +26,10 @@
     type: dword
     data: 2
 
+- name: Install powershell-yaml module
+  win_shell: |
+    Install-Module -Name powershell-yaml -Force -SkipPublisherCheck
+
 - name: Check if Atomic Red Team is installed
   win_shell: |
     $module = Get-Module -ListAvailable -Name invoke-atomicredteam
@@ -35,13 +39,12 @@
 
 - name: Install Atomic Red Team
   win_shell: |
-    Install-Module -Name powershell-yaml -Force -SkipPublisherCheck
     IEX (IWR https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1)
     Install-AtomicRedTeam -Force
     IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicsfolder.ps1' -UseBasicParsing)
     Install-AtomicsFolder -Force -RepoOwner redcanaryco -Branch master
   register: install_art
-  when: art_check.stdout | default('not_installed') | string == 'not_installed'
+  when: art_check.stdout | default('') | trim == 'not_installed'
 
 - name: copy default powershell profile
   win_copy:
